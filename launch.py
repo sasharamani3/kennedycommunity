@@ -6,16 +6,75 @@ from helpers import rundbquery
 from application import getDBsize
 from werkzeug.security import generate_password_hash
 
+import smtplib
+import ssl
 
-for currentuser in range(2, getDBsize()+1):
-    pw = ''.join(random.choice('0123456789ABCDEF') for i in range(16))
-    hash = generate_password_hash(pw)
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-    print('User ' + str(currentuser) + ' gets default pw ' + str(pw))
 
-    query = "Update innodb.alumni set defaultpass = %(pw)s, password = %(hash)s where id = %(id)s"
-    params = {}
-    params['pw'] = pw
-    params['hash'] = hash
-    params['id'] = currentuser
-    rundbquery(query,params)
+def sendWelcomeEmail(shortname, email, defaultpassword):
+    # me == my email address
+    # you == recipient's email address
+
+    # Create message container - the correct MIME type is multipart/alternative.
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = "Kennedy Community | Welcome!"
+
+    me = 'kennedycommunityapp@gmail.com'
+    you = [email]
+
+    msg['From'] = 'Kennedy Community Bot'
+    msg['To'] = ", ".join(you)
+
+    # Create the body of the message (a plain-text and an HTML version).
+    text = "Hi " + shortname.title() +", welcome to Kenendy Community!"
+
+    html = '<html><head></head>'
+    html = html + '<body><h2>Welcome!</h2><p></p>'
+    html = html + 'Hi ' + shortname.title() + ', welcome to Kennedy Community! Your account registration is complete.</p>'
+    html = html + '<p></p>Your account email address is <b>' + email + '</b> and your password is <b>' + defaultpassword + '</b>. Please log in at <a href="www.kennedycommunity.com">kennedycommunity.com</a> and change your password.'
+    html = html + '<p></p>The goal of this site is to promote our community by sharing personal contact information and social media information, but only within the existing community.'
+    html = html + '<p></p>Please do not reply to me, as I am only a bot. My creator is Sasha Ramani, who is accessible at sasha.ramani@gmail.com. You can, of course, find his profile and contact information - as well as that of 300+ HKS grads - on Kennedy Community.'
+    html = html + '<p></p>Love, <br> Kennedy Community Bot<br>'
+    html = html + '</body></html>'
+
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    msg.attach(part1)
+    msg.attach(part2)
+
+    # Send the message via local SMTP server.
+    s = smtplib.SMTP('smtp.gmail.com:587')
+    s.ehlo()
+    s.starttls()
+
+    username = 'kennedycommunityapp@gmail.com'
+    password = 'Freedom55!?'
+    s.login(username,password)
+
+    # sendmail function takes 3 arguments: sender's address, recipient's address
+    # and message to send - here it is sent as one string.
+    s.sendmail(me, you, msg.as_string())
+    s.quit()
+
+
+def assignDefaultPWtoEveryone():
+    for currentuser in range(1, getDBsize()+1):
+        pw = ''.join(random.choice('0123456789ABCDEF') for i in range(16))
+        hash = generate_password_hash(pw)
+
+        print('User ' + str(currentuser) + ' gets default pw ' + str(pw))
+
+        query = "Update innodb.alumni set defaultpass = %(pw)s, password = %(hash)s where id = %(id)s"
+        params = {}
+        params['pw'] = pw
+        params['hash'] = hash
+        params['id'] = currentuser
+        rundbquery(query,params)

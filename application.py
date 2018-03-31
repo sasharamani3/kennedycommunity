@@ -2,11 +2,8 @@
 ## Created by Sasha Ramani, MPP 2018
 
 ##To dos:
-
-#-host
-#-donations
 #-email everyone
-
+#-url
 
 
 from cs50 import SQL
@@ -139,7 +136,7 @@ def changepw():
     if request.method == "POST":
 
         # Verify correct original credentials
-        query = "Select idusers, email, password FROM innodb.alumni WHERE email = %(email)s"
+        query = "Select id, email, password FROM innodb.alumni WHERE email = %(email)s"
         params = {}
         params['email'] = request.form.get("email").lower()
         dbreturn = rundbquery(query, params)
@@ -152,13 +149,13 @@ def changepw():
                 # Update user's password
                 query = "UPDATE innodb.alumni SET password = %(password)s WHERE email = %(email)s"
                 params = {}
-                params['password'] = generate_password_hash(request.form.get("password"))
+                params['password'] = generate_password_hash(request.form.get("newpassword"))
                 params['email'] = request.form.get("email").lower()
                 dbreturn2 = rundbquery(query, params)
 
 
                 # Now log the user in
-                query = "Select idusers FROM users WHERE email = %(email)s"
+                query = "Select id FROM innodb.alumni WHERE email = %(email)s"
                 params['email'] = request.form.get("email").lower()
                 dbreturn3 = rundbquery(query, params)
 
