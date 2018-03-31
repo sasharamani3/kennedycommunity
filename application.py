@@ -4,6 +4,7 @@
 ##To dos:
 
 #-host
+#-donations
 #-email everyone
 
 
