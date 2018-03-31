@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block main %}
+    <form action="/search" method="post" onsubmit="return validateForm()">
+        <b>Enter any part of a student's profile</b>
+        <p></p>
+        <i>Sample Search Queries: </i> 'MPP', 'GSB', 'Sasha', 'Healthcare'
+        <p></p>
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" id="q" name="q" value=""/>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+
+    <script>
+        function validateForm() {
+
+            var q = document.getElementById("q").value;
+            if (q == "") {
+                alert("Please enter a search query");
+                return false;
+            }
+
+        }
+
+    </script>
+{% endblock %}

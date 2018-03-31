@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Profile
+{% endblock %}
+
+{% block main %}
+
+    <main class="container p-5">
+        <b>{{ fullname }}</b>
+        <p></p>
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td>{{ fullname }} ({{ shortname }})</td>
+                </tr>
+                <tr>
+                    <td>Affiliation</td>
+                    <td>{{ program }}, Class of {{ gradyear }}</td>
+                </tr>
+                <tr>
+                    <td>Joint/Dual degree</td>
+                    <td>{{ jointordualdegree }}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td><a href="mailto:{{ email }}">{{ email }}</a></td>
+                </tr>
+
+                <tr>
+                    <td>Phone number</td>
+                    <td>
+                        {% if phone == 'Hidden' %}
+                            <a href="javascript:hiddenPhone();">Hidden</a>
+                        {% else %}
+                            {{ phone }}
+                        {% endif %}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Social media</td>
+                    <td>
+
+                        {% if linkedin == 'Hidden' %}
+                            <a href="javascript:hiddenLinkedin();"><img src="/static/li256.png" alt="LinkedIn" height="42" width="42"></a>
+                        {% else %}
+                            {% if linkedin != '' %}
+                                <a href="{{ linkedin }}"><img src="/static/li256.png" alt="LinkedIn" height="42" width="42"></a>
+                            {% endif %}
+                        {% endif %}
+
+                        {% if facebook == 'Hidden' %}
+                            <a href="javascript:hiddenFacebook();"><img src="/static/fb256.png" alt="LinkedIn" height="42" width="42"></a>
+                        {% else %}
+                            {% if facebook != '' %}
+                                <a href="{{ facebook }}"><img src="/static/fb256.png" alt="LinkedIn" height="42" width="42"></a>
+                            {% endif %}
+                        {% endif %}
+
+                    <br>
+                    {{ othersocial }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ask me about...</td>
+                    <td>{{ ama }}</td>
+                </tr>
+
+            </tbody>
+
+        </table>
+    </main>
+
+    <script>
+        function hiddenPhone() {
+            alert("Phone numbers are hidden because you did not provide one yourself. Please edit your profile to provide a phone number.");
+        }
+
+        function hiddenLinkedin() {
+            alert("LinkedIn profiles are hidden because you did not provide one yourself. Please edit your profile to provide your LinkedIn profile.");
+        }
+
+        function hiddenFacebook() {
+            alert("Facebook profiles are hidden because you did not provide one yourself. Please edit your profile to provide your Facebook profile.");
+        }
+    </script>
+{% endblock %}

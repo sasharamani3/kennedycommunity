@@ -1,0 +1,239 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Edit Profile
+{% endblock %}
+
+{% block main %}
+
+
+        <b>Edit your Profile</b>
+        <p>Fields marked with * are required</p>
+
+    <form name="editprofile" action="/editprofile" method="post" class="pure-form pure-form-aligned" onsubmit="return validateForm()">
+        <fieldset>
+            <div class="pure-control-group">
+                <label for="fullname">Your full name*</label>
+                <input id="fullname" name="fullname" type="text" placeholder="{{fullname}}" value="{{fullname}}" readonly>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="shortname">How we should address you*</label>
+                <input id="shortname" name="shortname" type="text" placeholder="{{shortname}}" value="{{shortname}}">
+            </div>
+
+
+            <p></p>
+
+            <div class="pure-control-group">
+                <label for="program">Program (HKS Only)*</label>
+                <select id="program" name="program" placeholder="{{program}}" value="{{program}}">
+                    <option value = "{{program}}">{{program}}</option>
+                    <option value="MPP">MPP</option>
+                    <option value="MPA2">MPA2</option>
+                    <option value="MPAID">MPAID</option>
+                    <option value="MCMPA">MCMPA</option>
+                    <option value="PhD">PhD</option>
+                    <option value="Fellow">Fellow</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+
+            <div class="pure-control-group">
+                <label for="gradyear">Graduation Year<br>(HKS Only)*</label>
+                <select id="gradyear" name="gradyear" placeholder="{{gradyear}}" value="{{gradyear}}">
+                    <option value = "{{gradyear}}">{{gradyear}}</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                </select>
+            </div>
+
+            <div class="pure-control-group">
+                <label for="jointordualdegree">Joint/Dual Degree</label>
+                <input id="jointordualdegree" name="jointordualdegree" type="text" placeholder="{{jointordualdegree}}" value="{{jointordualdegree}}">
+            </div>
+
+            <p></p>
+            <div class="pure-control-group">
+                <label for="email">Permanent email Address*</label>
+                <input id="email" name="email" type="email" placeholder="{{email}}" value="{{email}}">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="email2">Permanent email (Confirm)*</label>
+                <input id="email2" name="email2" type="email" placeholder="{{email}}" value="{{email}}">
+            </div>
+
+            <div class="pure-control-group">
+                <label for="phone">Permanent Phone Number</label>
+                <input id="phone" name="phone" type="text" placeholder="{{phone}}" value="{{phone}}">
+            </div>
+
+
+            <div class="pure-control-group">
+                <label for="linkedin">Link to your LinkedIn profile</label>
+                <input id="linkedin" name="linkedin" type="url" placeholder="{{linkedin}}" value="{{linkedin}}">
+            </div>
+
+
+            <div class="pure-control-group">
+                <label for="facebook">Link to your Facebook profile</label>
+                <input id="facebook" name="facebook" type="url" placeholder="{{facebook}}" value="{{facebook}}">
+            </div>
+
+            <p></p>
+
+            <div class="pure-control-group">
+                <label for="othersocial">Other Social Media</label>
+                <textarea id="othersocial" name="othersocial" rows="4" placeholder = "Twitter, Instagram, Blogs, etc">{{othersocial}}</textarea>
+            </div>
+
+
+            <div class="pure-control-group">
+                <label for="ama">Ask me about...</label>
+                <textarea id="ama" name="ama" rows="10" placeholder = "Healthcare, education, etc. Suggestion: copy/paste the 'Experience' section of your LinkedIn profile here">{{ama}}</textarea>
+            </div>
+
+            <div class="pure-controls">
+                <label for="cb1" class="pure-checkbox">
+                    <input id="cb1" name="cb1" type="checkbox" value=""> I've filled out this form as truthfully as possible
+                </label>
+
+                <button type="submit" id="submit" class="pure-button pure-button-primary">Submit</button>
+            </div>
+
+        </fieldset>
+    </form>
+
+
+    <script>
+
+
+        function validateForm() {
+
+            var fullname = document.getElementById("fullname").value;
+            if (fullname == "") {
+                alert("Please enter your name");
+                return false;
+            }
+
+            if (fullname.search(" ") == -1) {
+                alert("Please enter your FULL name");
+                return false;
+            }
+
+            if (fullname.length >= 99) {
+                alert("Max name length is 100 characters");
+                return false;
+            }
+
+            var program = document.getElementById("program").value;
+            if (program == "" || program == "(HKS Program)") {
+                alert("Please select your HKS program");
+                return false
+            }
+
+            var gradyear = document.getElementById("gradyear").value;
+            if (gradyear == "" || gradyear == "(HKS Grad Year)") {
+                alert("Please select your HKS Graduation Year");
+                return false
+            }
+
+            var jointordualdegree = document.getElementById("jointordualdegree").value;
+            if (jointordualdegree.length >= 44) {
+                alert("Max length of Joint/Dual degree is 45 characters");
+                return false;
+            }
+
+
+
+            var email1 = document.getElementById("email").value;
+            var email2 = document.getElementById("email2").value;
+
+            if (email1 == "" || email2 == "") {
+                alert("You must enter your Permanent email address and verification");
+                return false;
+            }
+
+            if (email1.endsWith("@hks17.harvard.edu") == true || email1.endsWith("@hks18.harvard.edu") == true || email1.endsWith("@student.hks.harvard.edu") == true || email1.endsWith("@hks.harvard.edu") == true) {
+                alert("Your Permanent email address looks to be invalid. Please make sure that it is NOT a Harvard email address");
+                return false;
+            }
+
+            if (email1 != email2) {
+                alert("The two Permanent email addresses you provided do not match");
+                return false;
+            }
+
+            if (email1.length >= 99) {
+                alert("Max length of a Permanent email address is 100 characters");
+                return false;
+            }
+
+
+            var phone = document.getElementById("phone").value;
+            if (phone != "" && phone.search("+") == -1) {
+                alert("Please enter your phone number in international format: ie US numbers begin with +1");
+                return false;
+            }
+
+            if (phone.length >= 44) {
+                alert("Max length of your phone number is 45 characters");
+                return false;
+            }
+
+            var linkedin = document.getElementById("linkedin").value;
+            if (linkedin != "" && linkedin.search("linkedin") == -1) {
+                alert("Please check your LinkedIn account URL: it appears to be invalid");
+                return false;
+            }
+
+            if (linkedin.length >= 99) {
+                alert("Max length of your LinkedIn profile URL is 100 characters");
+                return false;
+            }
+
+            var facebook = document.getElementById("facebook").value;
+            if (facebook != "" && facebook.search("facebook") == -1) {
+                alert("Please check your Facebook account URL: it appears to be invalid");
+                return false;
+            }
+
+            if (facebook.length >= 99) {
+                alert("Max length of your Facebook profile URL is 100 characters");
+                return false;
+            }
+
+            var othersocial = document.getElementById("othersocial").value;
+            if (othersocial.length >= 99) {
+                alert("Max length of your Other Social Media is 250 characters");
+                return false;
+            }
+
+            var ama = document.getElementById("ama").value;
+            if (ama.length >= 9999) {
+                alert("Max length of your 'Ask me about' is 10,000 characters");
+                return false;
+            }
+
+            var check1 = document.getElementById("cb1").checked;
+
+            if (check1 == false) {
+                alert("You must check the box at the bottom of the form before submitting");
+                return false;
+            }
+
+            document.getElementById("submit").disabled = true;
+        }
+
+    </script>
+
+
+{% endblock %}
+
+
+

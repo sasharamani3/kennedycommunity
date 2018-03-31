@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Change Password
+{% endblock %}
+
+{% block main %}
+    <form action="/changepw" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" id="email" name="email" placeholder="email" type="text"/>
+        </div>
+        <div class="form-group">
+            <input class="form-control" id="password" name="password" placeholder="Current Password" type="password"/>
+        </div>
+        <div class="form-group">
+            <input class="form-control" id="newpassword" name="newpassword" placeholder="New Password" type="password"/>
+        </div>
+        <div class="form-group">
+            <input class="form-control" id="newpasswordconfirm" name="newpasswordconfirm" placeholder="New Password (confirm)" type="password"/>
+        </div>
+        <button class="btn btn-primary" type="submit">Confirm</button>
+    </form>
+
+
+    <script>
+        function validateForm() {
+            var email = document.getElementById("email").value;
+            if (email == "") {
+                alert("Please enter your email address");
+                return false;
+            }
+
+            var password = document.getElementById("password").value;
+            if (password == "") {
+                alert("Please enter your password");
+                return false;
+            }
+
+            var newpassword = document.getElementById("newpassword").value;
+            var newpasswordconfirm = document.getElementById("newpasswordconfirm").value;
+
+            if (newpassword == "" || newpasswordconfirm == "") {
+                alert("Please enter a new password");
+                return false;
+            }
+            if (newpassword != newpasswordconfirm) {
+                alert("New password and confirmation do not match");
+                return false;
+            }
+
+        }
+
+    </script>
+{% endblock %}

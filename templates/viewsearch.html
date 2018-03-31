@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block main %}
+
+    <main class="container p-5">
+        <b>Showing results {{desc}}</b>
+        <br>
+        <a href="/scrollsearch?q={{ q }}&startat={{ (start-20) }}">Previous</a> || <a href="/scrollsearch?q={{ q }}&startat={{ (end+1) }}">Next</a>
+        <p></p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Program</th>
+                    <th>Class Year</th>
+                    <th>Joint / Dual</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>LinkedIn</th>
+                    <th>Facebook</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td><a href="{{ '/viewprofile?id=%s'%student['id'] }}">{{ student['fullname'] }}</a></td>
+                    <td>{{ student['program'] }}</td>
+                    <td>{{ student['gradyear'] }}</td>
+                    <td>{{ student['jointordualdegree'] }}</td>
+                    <td><a href="mailto:{{ student['email'] }}">{{ student['email'] }}</a></td>
+
+                    <td>
+                        {% if student['phone'] == 'Hidden' %}
+                            <a href="javascript:hiddenPhone();">Hidden</a>
+                        {% else %}
+                            {{ student['phone'] }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if student['linkedin'] == 'Hidden' %}
+                            <a href="javascript:hiddenLinkedin();"><img src="/static/li256.png" alt="LinkedIn" height="42" width="42"></a>
+                        {% else %}
+                            {% if student['linkedin'] != '' %}
+                                <a href="{{ student['linkedin'] }}"><img src="/static/li256.png" alt="LinkedIn" height="42" width="42"></a>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if student['facebook'] == 'Hidden' %}
+                            <a href="javascript:hiddenFacebook();"><img src="/static/fb256.png" alt="Facebook" height="42" width="42"></a>
+                        {% else %}
+                            {% if student['facebook'] != '' %}
+                                <a href="{{ student['facebook'] }}"><img src="/static/fb256.png" alt="Facebook" height="42" width="42"></a>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </main>
+
+    <script>
+        function hiddenPhone() {
+            alert("Phone numbers are hidden because you did not provide one yourself. Please edit your profile to provide a phone number.");
+        }
+
+        function hiddenLinkedin() {
+            alert("LinkedIn profiles are hidden because you did not provide one yourself. Please edit your profile to provide your LinkedIn profile.");
+        }
+
+        function hiddenFacebook() {
+            alert("Facebook profiles are hidden because you did not provide one yourself. Please edit your profile to provide your Facebook profile.");
+        }
+    </script>
+{% endblock %}
