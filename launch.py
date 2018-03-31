@@ -31,11 +31,11 @@ def sendWelcomeEmail(shortname, email, defaultpassword):
     text = "Hi " + shortname.title() +", welcome to Kenendy Community!"
 
     html = '<html><head></head>'
-    html = html + '<body><h2>Welcome!</h2><p></p>'
+    html = html + '<body><h2>Welcome to Kennedy Community!</h2><p></p>'
     html = html + 'Hi ' + shortname.title() + ', welcome to Kennedy Community! Your account registration is complete.</p>'
-    html = html + '<p></p>Your account email address is <b>' + email + '</b> and your password is <b>' + defaultpassword + '</b>. Please log in at <a href="www.kennedycommunity.com">kennedycommunity.com</a> and change your password.'
-    html = html + '<p></p>The goal of this site is to promote our community by sharing personal contact information and social media information, but only within the existing community.'
-    html = html + '<p></p>Please do not reply to me, as I am only a bot. My creator is Sasha Ramani, who is accessible at sasha.ramani@gmail.com. You can, of course, find his profile and contact information - as well as that of 300+ HKS grads - on Kennedy Community.'
+    html = html + '<p></p>Your login is <b>' + email + '</b> and your password is <b>' + defaultpassword + '</b>. Please log in at <a href="www.kennedycommunity.com">kennedycommunity.com</a> and change your password.'
+    html = html + '<p></p>The goal of this site is to promote our community by sharing personal contact information and social media information. The community is restricted to HKS students and graduates.'
+    html = html + '<p></p>Please do not reply to me, as I am only a bot. My creator is Sasha Ramani, who is accessible at sasha.ramani@gmail.com. You can, of course, find his profile and contact information - as well as that of 300+ HKS grads - on <a href="www.kennedycommunity.com">Kennedy Community</a>.'
     html = html + '<p></p>Love, <br> Kennedy Community Bot<br>'
     html = html + '</body></html>'
 
@@ -78,3 +78,13 @@ def assignDefaultPWtoEveryone():
         params['hash'] = hash
         params['id'] = currentuser
         rundbquery(query,params)
+
+for currentuser in range(1,2):
+    query = "select shortname, email, defaultpass from innodb.alumni where id = %(id)s"
+    params = {}
+    params['id'] = currentuser
+    db = rundbquery(query,params)
+
+    for row in db:
+        print('Sending email to ID ' + str(row[0]) + ': ' + row[1])
+        sendWelcomeEmail(row[0], row[1], row[2])

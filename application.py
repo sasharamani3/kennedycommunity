@@ -207,7 +207,7 @@ def register():
 
         dbreturn = rundbquery(query, params)
 
-        sendWelcomeEmail(params['shortname'], params['email'], request.form.get('harvardemail'), params['password'], params)
+        sendWelcomeEmail(params['shortname'], params['email'], request.form.get('harvardemail'), defaultpass, params)
 
         return redirect(url_for('registered'))
 
@@ -231,7 +231,7 @@ def sendWelcomeEmail(shortname, email, harvardemail, defaultpassword, params):
     text = "Hi " + shortname.title() +", welcome to Kenendy Community!"
 
     html = '<html><head></head>'
-    html = html + '<body><h2>Welcome!</h2><p></p>'
+    html = html + '<body><h2>Welcome to Kennedy Community!</h2><p></p>'
     html = html + 'Hi ' + shortname.title() + ', welcome to Kennedy Community! Your account registration is complete.</p>'
     html = html + '<p></p>Your account email address is <b>' + email + '</b> and your password is <b>' + defaultpassword + '</b>. Please log in and change your password.'
     html = html + '<p></p>This is the only time that your Harvard email will be used by the site: we only do this to verify that you are, in fact, a Harvard student or graduate.'
