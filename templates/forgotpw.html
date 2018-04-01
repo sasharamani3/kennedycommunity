@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Forgot Password
+{% endblock %}
+
+{% block main %}
+    <form action="/forgotpw" method="post" onsubmit="return validateForm()">
+        <b>Reset Password</b><p></p>
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" id="email" name="email" placeholder="Email" type="email" value=""/>
+        </div>
+        <button class="btn btn-primary" type="submit">Reset Password</button>
+
+    </form>
+
+    <script>
+        function validateForm() {
+
+            var username = document.getElementById("email").value;
+            if (username == "") {
+                alert("Please enter your email address");
+                return false;
+            }
+
+        }
+
+    </script>
+{% endblock %}

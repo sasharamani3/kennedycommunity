@@ -155,18 +155,66 @@ def changepw():
 
 
                 # Now log the user in
-                query = "Select id FROM innodb.alumni WHERE email = %(email)s"
+                query = "Select id, shortname FROM innodb.alumni WHERE email = %(email)s"
                 params['email'] = request.form.get("email").lower()
                 dbreturn3 = rundbquery(query, params)
 
-                for row3 in dbreturn3:
+                for row in dbreturn3:
                     session["user_id"] = row[0]
+                    shortname = row[1]
 
                 # Redirect user to home page
+                confirmPasswordChange(shortname, params['email'])
                 return redirect("/")
 
     else:   # User reached route via GET (as by clicking a link or via redirect)
         return render_template("changepw.html")
+
+
+
+@app.route("/forgotpw", methods=["GET", "POST"])
+def forgotpw():
+    """Change Password"""
+
+    # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Verify correct original credentials
+        query = "Select count(*) FROM innodb.alumni WHERE email = %(email)s"
+        params = {}
+        params['email'] = request.form.get("email").lower()
+        dbreturn = rundbquery(query, params)
+
+        for row in dbreturn:
+            if int(row[0]) == 0:
+                return render_template("accountnotfound.html")
+            else:
+                # Update user's password
+                defaultpass = ''.join(random.choice('0123456789ABCDEF') for i in range(8))
+
+                query = "UPDATE innodb.alumni SET password = %(password)s WHERE email = %(email)s"
+                params = {}
+                params['password'] = generate_password_hash(defaultpass)
+                params['email'] = request.form.get("email").lower()
+                dbreturn2 = rundbquery(query, params)
+
+                query = "SELECT shortname FROM innodb.alumni WHERE email = %(email)s"
+                params = {}
+                params['email'] = request.form.get("email").lower()
+                dbreturn3 = rundbquery(query, params)
+
+                for row in dbreturn3:
+                    shortname = row[0]
+
+                sendPasswordReset(shortname, params['email'], defaultpass)
+
+                return render_template("resetpw.html")
+
+    else:   # User reached route via GET (as by clicking a link or via redirect)
+        return render_template("forgotpw.html")
 
 
 
@@ -180,6 +228,14 @@ def register():
 
     if request.method == "POST":
         print('Submitted form')
+
+        query = "Select Count(*) from innodb.alumni where email = %(email)s"
+        params = {}
+        params['email'] = request.form.get('email')
+        for row in rundbquery(query, params):
+            if int(row[0] > 0):
+                print('Duplicate account found')
+                return render_template("couldnotregister.html")
 
         # STEP 1: ADD TO THE DATABASE
         query = 'INSERT INTO innodb.alumni (fullname, shortname, program, gradyear, jointordualdegree, email, phone, phoneprovided, linkedin, linkedinprovided, facebook, facebookprovided, othersocial, ama, active, password)'
@@ -233,7 +289,7 @@ def sendWelcomeEmail(shortname, email, harvardemail, defaultpassword, params):
     html = '<html><head></head>'
     html = html + '<body><h2>Welcome to Kennedy Community!</h2><p></p>'
     html = html + 'Hi ' + shortname.title() + ', welcome to Kennedy Community! Your account registration is complete.</p>'
-    html = html + '<p></p>Your account email address is <b>' + email + '</b> and your password is <b>' + defaultpassword + '</b>. Please log in and change your password.'
+    html = html + '<p></p>Your account email address is <b>' + email + '</b> and your password is <b>' + defaultpassword + '</b>. Please log in at <a href="www.kennedycommunity.com">www.kennedycommunity.com</a> and change your password.'
     html = html + '<p></p>This is the only time that your Harvard email will be used by the site: we only do this to verify that you are, in fact, a Harvard student or graduate.'
     html = html + '<p></p>Please do not reply to me, as I am only a bot. My creator is Sasha Ramani, who is accessible at sasha.ramani@gmail.com. You can, of course, find his profile and contact information - as well as that of 300+ HKS grads - on Kennedy Community.'
     html = html + '<p></p>Love, <br> Kennedy Community Bot<br>'
@@ -265,6 +321,105 @@ def sendWelcomeEmail(shortname, email, harvardemail, defaultpassword, params):
     s.sendmail(me, you, msg.as_string())
     s.quit()
 
+
+
+def sendPasswordReset(shortname, email, defaultpassword):
+    # me == my email address
+    # you == recipient's email address
+
+    # Create message container - the correct MIME type is multipart/alternative.
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = "Kennedy Community | Password Reset"
+
+    me = 'kennedycommunityapp@gmail.com'
+    you = [email]
+
+    msg['From'] = 'Kennedy Community Bot'
+    msg['To'] = ", ".join(you)
+
+    # Create the body of the message (a plain-text and an HTML version).
+    text = "Hi " + shortname.title() +", your new password is enclosed"
+
+    html = '<html><head></head>'
+    html = html + '<body><h2>Password Reset</h2><p></p>'
+    html = html + 'Hi ' + shortname.title() + ', your password has been reset.</p>'
+    html = html + '<p></p>Your account email address is <b>' + email + '</b> and your password is <b>' + defaultpassword + '</b>. Please log in at <a href="www.kennedycommunity.com">www.kennedycommunity.com</a> and change your password.'
+    html = html + '<p></p>Love, <br> Kennedy Community Bot<br>'
+    html = html + '</body></html>'
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    msg.attach(part1)
+    msg.attach(part2)
+
+    # Send the message via local SMTP server.
+    s = smtplib.SMTP('smtp.gmail.com:587')
+    s.ehlo()
+    s.starttls()
+
+    username = 'kennedycommunityapp@gmail.com'
+    password = 'Freedom55!?'
+    s.login(username,password)
+
+    # sendmail function takes 3 arguments: sender's address, recipient's address
+    # and message to send - here it is sent as one string.
+    s.sendmail(me, you, msg.as_string())
+    s.quit()
+
+
+
+def confirmPasswordChange(shortname, email):
+    # me == my email address
+    # you == recipient's email address
+
+    # Create message container - the correct MIME type is multipart/alternative.
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = "Kennedy Community | Password Change"
+
+    me = 'kennedycommunityapp@gmail.com'
+    you = [email]
+
+    msg['From'] = 'Kennedy Community Bot'
+    msg['To'] = ", ".join(you)
+
+    # Create the body of the message (a plain-text and an HTML version).
+    text = "Hi " + shortname.title() +", your new password is enclosed"
+
+    html = '<html><head></head>'
+    html = html + '<body><h2>Password Change</h2><p></p>'
+    html = html + 'Hi ' + shortname.title() + ', your password has been changed.</p>'
+    html = html + '<p></p>If you believe this is an error, please log in at <a href="www.kennedycommunity.com">www.kennedycommunity.com</a> and reset your password.'
+    html = html + '<p></p>Love, <br> Kennedy Community Bot<br>'
+    html = html + '</body></html>'
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    msg.attach(part1)
+    msg.attach(part2)
+
+    # Send the message via local SMTP server.
+    s = smtplib.SMTP('smtp.gmail.com:587')
+    s.ehlo()
+    s.starttls()
+
+    username = 'kennedycommunityapp@gmail.com'
+    password = 'Freedom55!?'
+    s.login(username,password)
+
+    # sendmail function takes 3 arguments: sender's address, recipient's address
+    # and message to send - here it is sent as one string.
+    s.sendmail(me, you, msg.as_string())
+    s.quit()
 
 
 @app.route("/registered", methods=["GET", "POST"])
