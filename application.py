@@ -102,6 +102,15 @@ def login():
             print(row)
             if check_password_hash(row[2], request.form.get("password")):
                 session["user_id"] = row[0]
+
+                query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+                trackparams = {}
+                trackparams['userid'] = session.get("user_id")
+                trackparams['action'] = 'Log in'
+                trackparams['desc'] = ''
+                trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+                rundbquery(query, trackparams)
+
                 return render_template("goodlogin.html")
 
             else:
@@ -163,6 +172,16 @@ def changepw():
                     session["user_id"] = row[0]
                     shortname = row[1]
 
+
+
+                query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+                trackparams = {}
+                trackparams['userid'] = session.get("user_id")
+                trackparams['action'] = 'Change Password'
+                trackparams['desc'] = params['email']
+                trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+                rundbquery(query, trackparams)
+
                 # Redirect user to home page
                 confirmPasswordChange(shortname, params['email'])
                 return redirect("/")
@@ -193,6 +212,15 @@ def forgotpw():
                 return render_template("accountnotfound.html")
             else:
                 # Update user's password
+
+                query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+                trackparams = {}
+                trackparams['userid'] = session.get("user_id")
+                trackparams['action'] = 'Reset Password'
+                trackparams['desc'] = request.form.get("email").lower()
+                trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+                rundbquery(query, trackparams)
+
                 defaultpass = ''.join(random.choice('0123456789ABCDEF') for i in range(8))
 
                 query = "UPDATE innodb.alumni SET password = %(password)s WHERE email = %(email)s"
@@ -228,6 +256,14 @@ def register():
 
     if request.method == "POST":
         print('Submitted form')
+
+        query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+        trackparams = {}
+        trackparams['userid'] = 0
+        trackparams['action'] = 'Registered'
+        trackparams['desc'] = request.form.get('email')
+        trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+        rundbquery(query, trackparams)
 
         query = "Select Count(*) from innodb.alumni where email = %(email)s"
         params = {}
@@ -450,6 +486,15 @@ def editProfile():
 
     if request.method == "GET":
 
+
+        query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+        trackparams = {}
+        trackparams['userid'] = session.get("user_id")
+        trackparams['action'] = 'Edit Profile'
+        trackparams['desc'] = ''
+        trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+        rundbquery(query, trackparams)
+
         query = "SELECT fullname, shortname, program, gradyear, jointordualdegree, email, phone, linkedin, facebook, othersocial, ama FROM innodb.alumni WHERE id = %(id)s"
         params = {}
         params['id'] = session.get("user_id")
@@ -570,6 +615,15 @@ def search():
 
     if request.method == "POST":
         q = request.form.get('q')
+
+        query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+        trackparams = {}
+        trackparams['userid'] = session.get("user_id")
+        trackparams['action'] = 'Search'
+        trackparams['desc'] = str(q)
+        trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+        rundbquery(query, trackparams)
+
         print('query: '+ q)
         return viewsearch(q, 1)
 
@@ -580,6 +634,16 @@ def scrollsearch():
     if request.method == "GET":
         q = request.args.get('q')
         startat = request.args.get('startat')
+
+        query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+        trackparams = {}
+        trackparams['userid'] = session.get("user_id")
+        trackparams['action'] = 'Scroll Search'
+        trackparams['desc'] = str(q) + ' @ ' + str(startat)
+        trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+        rundbquery(query, trackparams)
+
+
         return viewsearch(q, startat)
 
 
@@ -644,6 +708,14 @@ def viewsearch(q, startat):
 @app.route("/viewlist")
 @login_required
 def viewlist():
+    query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+    trackparams = {}
+    trackparams['userid'] = session.get("user_id")
+    trackparams['action'] = 'Viewed Db'
+    trackparams['desc'] = ''
+    trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+    rundbquery(query, trackparams)
+
     query = "SELECT id, fullname, program, gradyear, jointordualdegree, email, phone, linkedin, facebook FROM innodb.alumni WHERE active = 1 ORDER BY id LIMIT 20 OFFSET %(startat)s"
     params = {}
     params['startat'] = request.args.get("startat")
@@ -782,6 +854,14 @@ def getFacebook():
 def viewProfile():
 
     if request.method == "GET":
+
+        query = "INSERT INTO innodb.actions (userid, useraction, info, eventtime) VALUES (%(userid)s, %(action)s, %(desc)s, %(time)s)"
+        trackparams = {}
+        trackparams['userid'] = session.get("user_id")
+        trackparams['action'] = 'Open Profile'
+        trackparams['desc'] = str(request.args.get('id'))
+        trackparams['time'] = str(datetime.datetime.now(pytz.timezone('US/Eastern')))
+        rundbquery(query, trackparams)
 
         query = "SELECT fullname, shortname, program, gradyear, jointordualdegree, email, phone, linkedin, facebook, othersocial, ama FROM innodb.alumni WHERE id = %(id)s"
         params = {}
